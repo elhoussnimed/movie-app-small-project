@@ -29,6 +29,7 @@ async function getMoviesSpecialPage() {
     addMovieToBody(movie, imgPath);
   });
 }
+
 async function getMoviesBySearch() {
   const searchValue = await searchBar.value;
   const response = await fetch(
@@ -83,13 +84,23 @@ function pagination(data) {
   let pages = document.querySelector(".pages");
 
   // add pages in pagination section
-  let totalPages = data.total_pages;
-  let totalResults = data.total_results;
-  let totalOfPages = Math.floor(totalResults / totalPages);
-  for (let i = 1; i < totalOfPages; i++) {
-    let page = `<span class="page-number" data-number="${i}">${i}</span>`;
-    pages.innerHTML += page;
+  function addPagesNumber() {
+    let totalPages = data.total_pages;
+    let totalResults = data.total_results;
+    let totalOfPages = Math.floor(totalResults / totalPages);
+
+    for (let i = 1; i <= totalOfPages; i++) {
+      // let page = `<span class="page-number" data-number="${i}">${i}</span>`;
+      // pages.innerHTML += page;
+      let page = document.createElement("span");
+      let content = document.createTextNode(i);
+      page.dataset.number = i;
+      page.classList.add("page-number");
+      page.append(content);
+      pages.append(page);
+    }
   }
+  addPagesNumber();
 
   // change current page by clicking in next and prev buttons
   let paginationPages = [...pages.children];
@@ -101,6 +112,7 @@ function pagination(data) {
     changeCurrentPage();
     disableButtons();
     getMoviesSpecialPage();
+    scrollWindowToTop();
   });
 
   previous.addEventListener("click", () => {
@@ -108,6 +120,7 @@ function pagination(data) {
     changeCurrentPage();
     disableButtons();
     getMoviesSpecialPage();
+    scrollWindowToTop();
   });
 
   // change currentPage when click in the page number
@@ -117,7 +130,8 @@ function pagination(data) {
         currentPage = +page.dataset.number;
         changeCurrentPage();
         disableButtons();
-        getMoviesSpecialPage(currentPage);
+        getMoviesSpecialPage();
+        scrollWindowToTop();
       });
     });
   }
@@ -130,6 +144,7 @@ function pagination(data) {
     });
     paginationPages[currentPage - 1].classList.add("current");
   }
+
   function disableButtons() {
     if (currentPage === 1) {
       previous.classList.add("disable");
@@ -139,6 +154,13 @@ function pagination(data) {
       next.classList.remove("disable");
       previous.classList.remove("disable");
     }
+  }
+  function scrollWindowToTop() {
+    window.scrollTo({
+      left: 0,
+      top: 0,
+      behavior: "smooth",
+    });
   }
 }
 
